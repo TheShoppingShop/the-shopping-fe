@@ -53,14 +53,14 @@ const playVideo = (id: string) => {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       <VCard
         v-for="video in videos"
         :key="video.id"
         class="group overflow-hidden"
       >
         <!-- Thumbnail -->
-        <div class="relative aspect-[9/16] overflow-hidden">
+        <div class="relative aspect-[13/16] overflow-hidden">
           <img
             :src="video.thumbnail"
             :alt="video.title"
@@ -107,7 +107,7 @@ const playVideo = (id: string) => {
             class="flex items-center justify-between text-xs text-muted-foreground"
           >
             <span>Liked video</span>
-            <Heart class="h-3 w-3 fill-red-500 text-red-500" />
+            <Heart class="h-5 w-5 fill-red-500 text-red-500" />
           </div>
         </VCardContent>
       </VCard>

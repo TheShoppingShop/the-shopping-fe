@@ -16,6 +16,7 @@ const params = ref<VideosParams>({
 })
 const selectedCategoryId = ref<number>()
 const filterLoading = ref(false)
+const videoLoading = ref(false)
 const getVideosByCategoryLoading = ref(false)
 
 const { data: categories } = await useAsyncData<Category[]>("categories", () => useCategory.getCategories());
@@ -43,26 +44,37 @@ const goToCategory = async (categoryId?: number) => {
   }
 }
 
+const getVideos = async (nextPage?: boolean) => {
+  if(!videos.value) return
+  if(!nextPage) videoLoading.value = true
+  try {
+    const data = await useVideos.getVideos(params.value, true);
+    if(nextPage) videos.value.data = [...videos.value.data, ...data.data]
+    else videos.value.data = data.data
+  } catch (err) {
+    console.error("getVideos error:", err);
+  } finally {
+    videoLoading.value = false
+  }
+}
+
 const nextVideo = async () => {
   if(!videos.value || !params.value?.page || params.value.page >= videos.value.totalPages) return
   params.value.page++
   filterLoading.value = true
-  try {
-    const data = await useVideos.getVideos(params.value, true);
-    videos.value.data = [...videos.value.data, ...data.data]
-  } catch (err) {
-    console.error("nextVideo error:", err);
-  } finally {
-    setTimeout(() => {
-      filterLoading.value = false
-    }, 2000)
-  }
+  await getVideos()
+  setTimeout(() => {
+    filterLoading.value = false
+  }, 2000)
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-background">
-    <MainHeader />
+    <MainHeader
+      v-model:search="params.search"
+      @update-videos="getVideos"
+    />
     <main class="container mx-auto px-4 py-6">
       <CategorySection
         v-if="categories"
@@ -73,7 +85,7 @@ const nextVideo = async () => {
         v-if="videos"
         :videos="videos.data"
         :loading="filterLoading"
-        :change-category-loading="getVideosByCategoryLoading"
+        :change-category-loading="getVideosByCategoryLoading || videoLoading"
         @next-page="nextVideo"
       />
     </main>

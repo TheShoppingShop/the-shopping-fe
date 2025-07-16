@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import {defineModel} from 'vue'
 defineProps<{
   type?: string
   customClass?: string
 }>()
+const value = defineModel('value', {type: String})
 </script>
 
 <template>
@@ -15,6 +17,7 @@ defineProps<{
       'disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
       customClass
     ]"
+    v-model="value"
     v-bind="$attrs"
-  />
+  >
 </template>

@@ -112,6 +112,11 @@ const prevVideo = () => {
   }
 }
 
+const openAmazonLink = (link: string) => {
+  if(!link) return
+  window.open(link, '_blank')
+}
+
 watch(() => route.query.slug, () => {
   if (videos.value && videos.value.length) {
     const index = videos.value.findIndex((v: Video) => v.slug === route.query.slug)
@@ -149,13 +154,27 @@ onUnmounted(() => {
           <ArrowLeft class="w-5 h-5" />
         </VButton>
         <div class="relative max-w-sm w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl">
-          <video ref="videoRef" class="w-full h-full object-cover cursor-pointer" @click="togglePlay" playsinline muted autoplay :poster="videos[currentIndex].thumbnailUrl" preload="metadata" />
+          <video
+            ref="videoRef"
+            class="w-full h-full object-cover cursor-pointer"
+            playsinline
+            muted
+            autoplay
+            :poster="videos[currentIndex].thumbnailUrl"
+            preload="metadata"
+            @click="togglePlay"
+          />
           <div v-if="!isPlaying" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="bg-black/50 rounded-full p-4">
               <Pause class="w-12 h-12 text-white fill-white" />
             </div>
           </div>
-          <VButton variant="ghost" size="sm" @click="toggleMute" class="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-full p-2">
+          <VButton
+            variant="ghost"
+            size="sm"
+            class="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-full p-2"
+            @click="toggleMute"
+          >
             <component :is="isMuted ? VolumeX : Volume2" class="w-5 h-5" />
           </VButton>
           <div class="absolute bottom-4 left-4 right-4 text-white">
@@ -163,7 +182,7 @@ onUnmounted(() => {
             <div class="flex items-center justify-between text-sm opacity-90">
               <span>{{ videos[currentIndex].views }} views</span>
               <div class="flex items-center space-x-4">
-                <button @click="liked = !liked" class="flex items-center space-x-1 hover:scale-110 transition-transform">
+                <button class="flex items-center space-x-1 hover:scale-110 transition-transform" @click="liked = !liked">
                   <Heart :class="['w-5 h-5', liked ? 'fill-red-500 text-red-500' : '']" />
                   <span>{{ videos[currentIndex].likes }}</span>
                 </button>
@@ -183,38 +202,22 @@ onUnmounted(() => {
           </VButton>
         </div>
       </div>
-      <div class="lg:w-1/2 xl:w-2/5 bg-card p-6 lg:p-8 overflow-y-auto">
+      <div class="lg:w-1/2 xl:w-2/5 bg-card p-6 lg:p-8 max-h-screen overflow-y-auto">
         <div class="max-w-lg mx-auto space-y-6">
           <div>
             <h1 class="text-2xl font-bold text-foreground mb-3">
               {{ videos[currentIndex]?.title }}
             </h1>
-            <p class="text-muted-foreground leading-relaxed">
-              {{ videos[currentIndex]?.description }}
-            </p>
-          </div>
-          <div class="flex items-center space-x-4">
-          <span class="text-3xl font-bold text-primary">
-            {{ videos[currentIndex]?.price }}
-          </span>
-            <span class="text-lg text-muted-foreground line-through">
-            {{ videos[currentIndex]?.originalPrice }}
-          </span>
-            <Badge variant="destructive">
-              Save {{ Math.round((1 - parseFloat(videos[currentIndex]?.price?.replace('$', '')) / parseFloat(videos[currentIndex]?.originalPrice?.replace('$', ''))) * 100) }}%
-            </Badge>
-          </div>
-          <div>
-            <h3 class="font-semibold text-lg mb-3">Key Features</h3>
-            <ul class="space-y-2">
-              <li v-for="(feat, idx) in videos[currentIndex]?.features" :key="idx" class="flex items-start space-x-2">
-                <div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                <span class="text-muted-foreground">{{ feat }}</span>
-              </li>
-            </ul>
+            <div
+              v-if="videos[currentIndex]?.description"
+              v-html="videos[currentIndex]?.description"
+            />
           </div>
           <div class="space-y-3 pt-4">
-            <VButton class="w-full py-6 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 transform hover:scale-105" @click="window.open(videos[currentIndex].product.affiliateLink, '_blank')">
+            <VButton
+              class="w-full py-6 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 transform hover:scale-105"
+              @click="openAmazonLink(videos[currentIndex].amazonLink)"
+            >
               <ShoppingCart class="w-5 h-5 mr-2" />
               Buy Now on Amazon
             </VButton>

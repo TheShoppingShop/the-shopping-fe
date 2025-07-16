@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Search, Menu } from 'lucide-vue-next'
-
+import {Search, Menu, Heart} from 'lucide-vue-next'
 import VButton from '@/components/ui/VButton.vue'
 import Input from '@/components/ui/VInput.vue'
-import VAvatar from '@/components/ui/VAvatar.vue'
+import {debounce} from "lodash";
+import { defineModel } from 'vue'
+// import VAvatar from '@/components/ui/VAvatar.vue'
+
+interface Emits {
+  (e: 'update-videos'): void
+}
+
+const emit = defineEmits<Emits>()
 
 const router = useRouter()
+
+const search = defineModel('search', {type: String, default: ''})
 
 const handleProfileClick = () => {
   router.push('/profile')
@@ -15,6 +24,10 @@ const handleProfileClick = () => {
 const goHome = () => {
   router.push('/')
 }
+
+const startSearch = debounce(() => {
+  emit('update-videos')
+}, 400)
 </script>
 
 <template>
@@ -41,6 +54,8 @@ const goHome = () => {
             placeholder="Search trending products..."
             class="pl-10 border-muted-foreground/20 focus:border-primary rounded-full"
             style="border-radius: 9999px"
+            v-model:value="search"
+            @input="startSearch"
           />
         </div>
       </div>
@@ -51,9 +66,13 @@ const goHome = () => {
           <Search class="h-5 w-5" />
         </VButton>
 
-        <VAvatar
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-          class="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all duration-200"
+<!--        <VAvatar-->
+<!--          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"-->
+<!--          class="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all duration-200"-->
+<!--          @click="handleProfileClick"-->
+<!--        />-->
+        <Heart
+          class="h-6 w-6 cursor-pointer text-gray-500"
           @click="handleProfileClick"
         />
       </div>
