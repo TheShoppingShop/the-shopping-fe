@@ -3,13 +3,25 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Play, Heart } from 'lucide-vue-next'
 import type {Video} from '@/types'
+import {formatViews} from "~/utils/helpers-functions";
+import {useLikedVideos} from "~/composables/useLikedVideo";
+import {useVideoStore} from "~/store/useVideoStore";
 
-const props = defineProps<{
+const likedVideos = useLikedVideos()
+const videoStore = useVideoStore()
+
+interface Props {
   video: Video
-}>()
+}
+
+interface Emits {
+  (e: 'update-like-count', {id, liked}: {id: number, liked?: boolean}): void
+}
+
+const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
 
 const isHovered = ref(false)
-const liked = ref(false)
 const router = useRouter()
 
 const handleClick = () => {
@@ -17,6 +29,23 @@ const handleClick = () => {
     path: `/video`,
     query: {slug: props.video.slug}
   })
+}
+
+const toggleLike = async () => {
+  const id = props.video.id
+  if(!id) return
+  try {
+    if(!likedVideos.isLiked(id)) {
+      await videoStore.likeVideo(id)
+      emits('update-like-count', {id, liked: true})
+    } else {
+      await videoStore.unlikeVideo(id)
+      emits('update-like-count', {id, liked: false})
+    }
+    likedVideos.toggleLike(id)
+  } catch (err) {
+    console.error("toggleLike error:", err);
+  }
 }
 </script>
 
@@ -53,14 +82,18 @@ const handleClick = () => {
     <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
       <h3 class="font-semibold text-sm mb-2 line-clamp-2">{{ video.title }}</h3>
       <div class="flex items-center justify-between text-xs opacity-90">
-        <span>2.1M views</span>
-        <button
-          @click.stop="liked = !liked"
-          class="flex items-center space-x-1 hover:scale-110 transition-transform"
-        >
-          <Heart class="w-4 h-4" :class="{ 'fill-red-500 text-red-500': liked }" />
-          <span>32k</span>
-        </button>
+        <div>
+          <span v-if="video?.views || video?.views === 0">{{ formatViews(video.views) }} views</span>
+        </div>
+        <client-only>
+          <button
+            @click.stop="toggleLike"
+            class="flex items-center space-x-1 hover:scale-110 transition-transform"
+          >
+            <Heart class="w-4 h-4" :class="{ 'fill-red-500 text-red-500': likedVideos.isLiked(video.id) }" />
+            <span>{{ formatViews(video.likes) }}</span>
+          </button>
+        </client-only>
       </div>
     </div>
 

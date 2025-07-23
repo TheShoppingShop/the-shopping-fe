@@ -50,10 +50,32 @@ export const useVideoStore = defineStore('video', () => {
     }
   };
 
+  const likeVideo = async (videoId: number) => {
+    try {
+      await $apiFetch(`/videos/${videoId}/like`, {
+        method: "post"
+      });
+    } catch (err: unknown) {
+      console.error("getNews error:", err);
+    }
+  };
+
+  const unlikeVideo = async (videoId: number) => {
+    try {
+      await $apiFetch(`/videos/${videoId}/unlike`, {
+        method: "post"
+      });
+    } catch (err: unknown) {
+      console.error("getNews error:", err);
+    }
+  };
+
   return {
     videos,
     getVideos,
     getVideo,
-    getVideosWithSlug
+    getVideosWithSlug,
+    likeVideo,
+    unlikeVideo
   }
 })

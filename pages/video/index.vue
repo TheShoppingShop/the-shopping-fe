@@ -15,12 +15,13 @@ import {
 } from 'lucide-vue-next'
 
 import VButton from '@/components/ui/VButton.vue'
-import Badge from '@/components/ui/VBadge.vue'
 import { useAsyncData } from '#app'
 import { useVideoStore } from '@/store/useVideoStore'
-import type {Video} from "~/types"; // adjust path as needed
+import type {Video} from "~/types";
+import {useLikedVideos} from "~/composables/useLikedVideo"; // adjust path as needed
 
 const useVideos = useVideoStore()
+const videoLike = useLikedVideos()
 
 const router = useRouter()
 const route = useRoute()
@@ -117,6 +118,23 @@ const openAmazonLink = (link: string) => {
   window.open(link, '_blank')
 }
 
+const shareVideo = async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Check out this video!',
+        text: 'Here’s a great video I found.',
+        url: window.location.href
+      })
+      console.log('Video shared successfully')
+    } catch (err) {
+      console.error('Sharing failed:', err)
+    }
+  } else {
+    alert('Sharing is not supported on this device.')
+  }
+}
+
 watch(() => route.query.slug, () => {
   if (videos.value && videos.value.length) {
     const index = videos.value.findIndex((v: Video) => v.slug === route.query.slug)
@@ -182,11 +200,17 @@ onUnmounted(() => {
             <div class="flex items-center justify-between text-sm opacity-90">
               <span>{{ videos[currentIndex].views }} views</span>
               <div class="flex items-center space-x-4">
-                <button class="flex items-center space-x-1 hover:scale-110 transition-transform" @click="liked = !liked">
-                  <Heart :class="['w-5 h-5', liked ? 'fill-red-500 text-red-500' : '']" />
+                <button
+                  class="flex items-center space-x-1 hover:scale-110 transition-transform"
+                  @click="videoLike.toggleLike(videos[currentIndex].id)"
+                >
+                  <Heart :class="['w-5 h-5', videoLike.isLiked(videos[currentIndex].id) ? 'fill-red-500 text-red-500' : '']" />
                   <span>{{ videos[currentIndex].likes }}</span>
                 </button>
-                <button class="hover:scale-110 transition-transform">
+                <button
+                  class="hover:scale-110 transition-transform"
+                  @click="shareVideo"
+                >
                   <Share2 class="w-5 h-5" />
                 </button>
               </div>

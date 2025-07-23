@@ -7,6 +7,7 @@ import {useVideoStore} from "~/store/useVideoStore";
 import type {Category, ResponsePagination, Video, VideosParams} from '@/types'
 import {ref} from "vue";
 
+
 const useCategory = useCategoryStore();
 const useVideos = useVideoStore();
 
@@ -67,6 +68,14 @@ const nextVideo = async () => {
     filterLoading.value = false
   }, 2000)
 }
+
+const updateVideoLikeCount = ({ id, liked }: { id: number; liked?: boolean }) => {
+  const video = videos.value?.data?.find(v => v.id === id)
+  if (video) {
+    if (liked) video.likes++
+    else video.likes--
+  }
+}
 </script>
 
 <template>
@@ -87,6 +96,7 @@ const nextVideo = async () => {
         :loading="filterLoading"
         :change-category-loading="getVideosByCategoryLoading || videoLoading"
         @next-page="nextVideo"
+        @update-like-count="updateVideoLikeCount($event)"
       />
     </main>
   </div>

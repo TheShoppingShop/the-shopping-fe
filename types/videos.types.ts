@@ -1,5 +1,5 @@
 export interface Video {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   description: string;
@@ -8,6 +8,8 @@ export interface Video {
   categoryId: string;
   isPublished: boolean;
   createdAt: string;
+  views: number;
+  likes: number;
   videoUrl: string;
   thumbnailUrl: string;
 }

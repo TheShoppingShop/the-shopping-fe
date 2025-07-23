@@ -11,6 +11,7 @@ interface Props {
 
 interface Emits {
   (e: 'next-page'): void
+  (e: 'update-like-count', {id, liked}: {id: string, liked?: boolean}): void
 }
 
 const props = defineProps<Props>()
@@ -29,6 +30,10 @@ const handleScroll = () => {
   if (nearBottom) {
     loadMore()
   }
+}
+
+const updateVideoLike = ({id, liked}: {id: string, liked?: boolean}) => {
+  emits('update-like-count', {id, liked})
 }
 
 onMounted(() => {
@@ -50,6 +55,7 @@ onUnmounted(() => {
         v-for="(video, index) in videos"
         :key="`${video.id}-${index}`"
         :video="video"
+        @update-like-count="updateVideoLike($event)"
       />
     </div>
 
