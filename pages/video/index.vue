@@ -17,7 +17,7 @@ import {
 import VButton from '@/components/ui/VButton.vue'
 import { useAsyncData } from '#app'
 import { useVideoStore } from '@/store/useVideoStore'
-import type {Video} from "~/types";
+import type {ResponsePagination, Video} from "~/types";
 import {useLikedVideos} from "~/composables/useLikedVideo"; // adjust path as needed
 
 const useVideos = useVideoStore()
@@ -25,16 +25,16 @@ const videoLike = useLikedVideos()
 
 const router = useRouter()
 const route = useRoute()
+
 const videoRef = ref<HTMLVideoElement | null>(null)
 const hls = ref<Hls | null>(null)
 const currentIndex = ref(0)
-const liked = ref(false)
 const isPlaying = ref(true)
 const isMuted = ref(true)
 
 const { data: videosBySlug, pending: loading } = await useAsyncData('videosWithSlug', () => useVideos.getVideosWithSlug(route.query.slug as string))
-const videos = computed(() => videosBySlug.value?.data)
-const totalPages = computed(() => videosBySlug.value?.totalPages)
+const videos = computed(() => (videosBySlug.value as ResponsePagination<Video>)?.data)
+const totalPages = computed(() => (videosBySlug.value as ResponsePagination<Video>)?.totalPages)
 const page = ref(1)
 
 const initPlayer = (url: string) => {
@@ -167,8 +167,13 @@ onUnmounted(() => {
       </div>
     </div>
     <div v-else-if="videos && videos.length" class="min-h-screen bg-background flex flex-col lg:flex-row">
-      <div class="lg:w-1/2 xl:w-3/5 bg-black relative flex items-center justify-center">
-        <VButton variant="ghost" size="sm" class="absolute top-4 left-4 z-10 text-white hover:bg-white/20" @click="router.push('/')">
+      <div class="lg:w-1/2 xl:w-3/5 bg-black p-3 relative flex items-center justify-center">
+        <VButton
+          variant="ghost"
+          size="sm"
+          class="absolute top-4 font-bold left-4 z-10 text-white bg-white/20"
+          @click="router.go(-1)"
+        >
           <ArrowLeft class="w-5 h-5" />
         </VButton>
         <div class="relative max-w-sm w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl">
@@ -218,11 +223,23 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col space-y-4">
-          <VButton variant="ghost" size="sm" class="text-white hover:bg-white/20 rounded-full p-3" :disabled="currentIndex === 0" @click="prevVideo">
+          <VButton
+            variant="ghost"
+            size="sm"
+            class="text-white bg-white/20 rounded-full p-2"
+            :disabled="currentIndex === 0"
+            @click="prevVideo"
+          >
             <ArrowUp class="w-6 h-6" />
           </VButton>
-          <VButton variant="ghost" size="sm" class="text-white hover:bg-white/20 rounded-full p-3" :disabled="currentIndex === videos.length - 1" @click="nextVideo">
-            <ArrowDown class="w-6 h-6" />
+          <VButton
+            variant="ghost"
+            size="sm"
+            class="text-white bg-white/20 rounded-full p-2"
+            :disabled="currentIndex === videos.length - 1"
+            @click="nextVideo"
+          >
+            <ArrowDown class="w-6 h-6 font-bold" />
           </VButton>
         </div>
       </div>

@@ -27,7 +27,35 @@ export const useVideoStore = defineStore('video', () => {
     }
   };
 
-  const getVideosWithSlug = async (slug: string, params?: VideosParams): Promise<ResponsePagination<Video> | any> => {
+  const getSuggestVideos = async (search?: string): Promise<ResponsePagination<Video>> => {
+    try {
+      return await $apiFetch<Video[]>("/videos/suggest", {
+        method: "get",
+        params: {
+          q: search
+        }
+      });
+    } catch (err: unknown) {
+      console.error("getNews error:", err);
+      return []
+    }
+  };
+
+  const getLikedVideos = async (ids: number[]): Promise<Video[] | []> => {
+    try {
+      return await $apiFetch<ResponsePagination<Video>>("/videos/liked", {
+        method: "get",
+        params: {
+          ids
+        }
+      });
+    } catch (err: unknown) {
+      console.error("getNews error:", err);
+      return []
+    }
+  };
+
+  const getVideosWithSlug = async (slug: string, params?: VideosParams): Promise<ResponsePagination<Video> | []> => {
     try {
       return await $apiFetch<ResponsePagination<Video>>(`videos/related/${slug}`, {
         method: "get",
@@ -76,6 +104,8 @@ export const useVideoStore = defineStore('video', () => {
     getVideo,
     getVideosWithSlug,
     likeVideo,
-    unlikeVideo
+    unlikeVideo,
+    getLikedVideos,
+    getSuggestVideos
   }
 })

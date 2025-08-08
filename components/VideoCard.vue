@@ -9,6 +9,7 @@ import {useVideoStore} from "~/store/useVideoStore";
 
 const likedVideos = useLikedVideos()
 const videoStore = useVideoStore()
+const router = useRouter()
 
 interface Props {
   video: Video
@@ -17,12 +18,10 @@ interface Props {
 interface Emits {
   (e: 'update-like-count', {id, liked}: {id: number, liked?: boolean}): void
 }
-
 const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
 
+const emits = defineEmits<Emits>()
 const isHovered = ref(false)
-const router = useRouter()
 
 const handleClick = () => {
   router.push({

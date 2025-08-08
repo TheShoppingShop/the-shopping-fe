@@ -80,10 +80,7 @@ const updateVideoLikeCount = ({ id, liked }: { id: number; liked?: boolean }) =>
 
 <template>
   <div class="min-h-screen bg-background">
-    <MainHeader
-      v-model:search="params.search"
-      @update-videos="getVideos"
-    />
+    <MainHeader />
     <main class="container mx-auto px-4 py-6">
       <CategorySection
         v-if="categories"

@@ -2,7 +2,7 @@ import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 
 
-const STORAGE_KEY = 'liked_video_ids'
+export const STORAGE_KEY = 'liked_video_ids'
 
 const likedIds = ref<number[] | null>(null)
 

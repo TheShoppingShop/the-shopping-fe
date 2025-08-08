@@ -1,21 +1,31 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import {Search, Menu, Heart} from 'lucide-vue-next'
+import {Search, Heart, X} from 'lucide-vue-next'
 import VButton from '@/components/ui/VButton.vue'
 import Input from '@/components/ui/VInput.vue'
 import {debounce} from "lodash";
-import { defineModel } from 'vue'
+import {ref} from 'vue'
+import type {Video} from "~/types";
+import {useVideoStore} from "~/store/useVideoStore";
+import {useRoute} from "#vue-router";
 // import VAvatar from '@/components/ui/VAvatar.vue'
 
-interface Emits {
-  (e: 'update-videos'): void
-}
-
-const emit = defineEmits<Emits>()
-
+const useVideos = useVideoStore();
+const route = useRoute()
 const router = useRouter()
 
-const search = defineModel('search', {type: String, default: ''})
+const search = ref('')
+
+const suggestionsLoading = ref(false)
+const suggestions = ref<Video[]>([])
+const openMobileSearch = ref(false)
+
+
+onMounted(() => {
+  if (route.query?.v) {
+    search.value = route.query.v as string
+  }
+})
 
 const handleProfileClick = () => {
   router.push('/profile')
@@ -25,9 +35,39 @@ const goHome = () => {
   router.push('/')
 }
 
+const clearSearch = () => {
+  search.value = '';
+  suggestions.value = []
+}
+
+const clearSuggestions = () => {
+  suggestions.value = []
+}
+
+const getSuggestions = async () => {
+  suggestionsLoading.value = true
+  try {
+    const {data} = await useVideos.getSuggestVideos(search.value);
+    suggestions.value = data
+  } catch (err) {
+    console.error("getVideos error:", err);
+  } finally {
+    suggestionsLoading.value = false
+  }
+}
+
 const startSearch = debounce(() => {
-  emit('update-videos')
+  getSuggestions()
 }, 400)
+
+const startSearchOnFocus = debounce(() => {
+  if(!search.value) return
+  getSuggestions()
+}, 400)
+
+const toResults = () => {
+  router.push({name: 'result', query: {v: search.value}})
+}
 </script>
 
 <template>
@@ -35,9 +75,9 @@ const startSearch = debounce(() => {
     <div class="container mx-auto px-4 h-16 flex items-center justify-between">
       <!-- Logo & Menu -->
       <div class="flex items-center space-x-4">
-        <VButton variant="ghost" size="sm" class="md:hidden">
-          <Menu class="h-5 w-5" />
-        </VButton>
+<!--        <VButton variant="ghost" size="sm" class="md:hidden">-->
+<!--          <Menu class="h-5 w-5" />-->
+<!--        </VButton>-->
         <h1
           class="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent cursor-pointer"
           @click="goHome"
@@ -49,20 +89,62 @@ const startSearch = debounce(() => {
       <!-- Search -->
       <div class="hidden md:flex flex-1 max-w-md mx-8">
         <div class="relative w-full">
-          <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search trending products..."
-            class="pl-10 border-muted-foreground/20 focus:border-primary rounded-full"
-            style="border-radius: 9999px"
-            v-model:value="search"
-            @input="startSearch"
-          />
+          <form
+            class="flex items-center"
+            @submit.prevent="toResults"
+          >
+            <Input
+              placeholder="Search trending products..."
+              class="pl-5 rounded-tl-full rounded-bl-full"
+              v-model:value="search"
+              @input="startSearch"
+              @focus="startSearchOnFocus"
+            />
+            <X
+              v-if="search"
+              class="absolute right-[60px] top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
+              @click="clearSearch"
+            />
+            <button
+              class="rounded-tr-full h-10 w-14 flex items-center justify-center rounded-br-full border border-l-0 hover:bg-gray-50"
+              type="submit"
+            >
+              <Search class="transform h-4 w-4 text-muted-foreground mr-1" />
+            </button>
+          </form>
+          <div
+            v-if="suggestions?.length"
+            v-click-outside="clearSuggestions"
+            class="absolute top-full p-1 left-0 w-full mt-2 bg-background border border-muted-foreground/20 rounded-md shadow-xl"
+          >
+            <ul>
+              <li
+                v-for="(item, i) in suggestions"
+                :key="`suggestion-${item.id}`"
+                class="text-sm p-2 hover:bg-gray-50 cursor-pointer overflow-hidden flex items-center gap-2"
+                :class="{'border-b': i !== suggestions.length - 1}"
+                @click="router.push({name: 'video', query: {slug: item.slug}})"
+              >
+                <img
+                  :src="item.thumbnailUrl"
+                  :alt="item.title"
+                  class="w-10 h-10 border border-muted-foreground/20 rounded-md"
+                >
+                {{ item.title?.length ? 100 > item.title.length ? item.title : item.title.slice(0, 100) + '...' : '' }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
       <!-- Icons & Avatar -->
       <div class="flex items-center space-x-2">
-        <VButton variant="ghost" size="sm" class="md:hidden">
+        <VButton
+          variant="ghost"
+          size="sm"
+          class="md:hidden"
+          @click="openMobileSearch = !openMobileSearch"
+        >
           <Search class="h-5 w-5" />
         </VButton>
 
@@ -72,10 +154,11 @@ const startSearch = debounce(() => {
 <!--          @click="handleProfileClick"-->
 <!--        />-->
         <Heart
-          class="h-6 w-6 cursor-pointer text-gray-500"
+          class="h-6 w-6 cursor-pointer text-gray-500 hover:scale-110 transition-all duration-200"
           @click="handleProfileClick"
         />
       </div>
     </div>
   </header>
+  <HeaderSearch v-if="openMobileSearch" />
 </template>
