@@ -21,7 +21,7 @@ const videoLoading = ref(false)
 const getVideosByCategoryLoading = ref(false)
 
 const { data: categories } = await useAsyncData<Category[]>("categories", () => useCategory.getCategories());
-const { data: videos } = await useAsyncData<ResponsePagination<Video>>("videos", () => useVideos.getVideos(params.value));
+const { data: videos } = await useAsyncData<ResponsePagination<Video>>("videos", () => useVideos.getVideos(params.value, true));
 
 const goToCategory = async (categoryId?: number) => {
   if(categoryId) {
