@@ -37,6 +37,76 @@ const videos = computed(() => (videosBySlug.value as ResponsePagination<Video>)?
 const totalPages = computed(() => (videosBySlug.value as ResponsePagination<Video>)?.totalPages)
 const page = ref(1)
 
+const currentVideo = computed(() => videos.value?.[currentIndex.value])
+
+const siteUrl = 'https://theshopping.shop'
+const defaultOg = `${siteUrl}/og-image.jpg`
+
+useSeoMeta({
+  // Title
+  title: computed(() =>
+    currentVideo.value?.metaTitle
+      ? currentVideo.value.metaTitle
+      : currentVideo.value?.title
+        ? `${currentVideo.value.title} – TheShopping`
+        : 'TheShopping – Watch, Discover & Shop Trending Amazon Products'
+  ),
+  ogTitle: computed(() =>
+    currentVideo.value?.metaTitle
+      ? currentVideo.value.metaTitle
+      : currentVideo.value?.title
+        ? `${currentVideo.value.title} – TheShopping`
+        : 'TheShopping – Watch, Discover & Shop Trending Amazon Products'
+  ),
+
+  // Description
+  description: computed(() => {
+    const d = currentVideo.value?.metaDescription
+      ?? currentVideo.value?.description
+      ?? 'Discover trending Amazon products through engaging short videos.'
+    return d.length > 160 ? d.slice(0,157) + '…' : d
+  }),
+  ogDescription: computed(() => {
+    const d = currentVideo.value?.metaDescription
+      ?? currentVideo.value?.description
+      ?? 'Discover trending Amazon products through engaging short videos.'
+    return d.length > 200 ? d.slice(0,197) + '…' : d
+  }),
+
+  // Keywords
+  keywords: computed(() =>
+    currentVideo.value?.metaKeywords?.length
+      ? currentVideo.value.metaKeywords.join(', ')
+      : 'amazon trending products, video reviews, online shopping USA, amazon finds'
+  ),
+
+  // Canonical / URL / Images
+  ogUrl: computed(() =>
+    currentVideo.value?.slug
+      ? `${siteUrl}/video?slug=${currentVideo.value.slug}`
+      : siteUrl
+  ),
+  ogImage: computed(() => currentVideo.value?.thumbnailUrl || defaultOg),
+  twitterCard: 'summary_large_image',
+  twitterImage: computed(() => currentVideo.value?.thumbnailUrl || defaultOg),
+
+  // Region/locale (sahifa-level)
+  ogLocale: 'en_US'
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: computed(() =>
+        currentVideo.value?.slug
+          ? `${siteUrl}/video?slug=${currentVideo.value.slug}`
+          : siteUrl
+      )
+    }
+  ],
+})
+
 const initPlayer = (url: string) => {
   const video = videoRef.value
   if (!video) return

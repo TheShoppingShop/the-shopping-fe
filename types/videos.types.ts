@@ -9,6 +9,9 @@ export interface Video {
   isPublished: boolean;
   createdAt: string;
   views: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
   likes: number;
   videoUrl: string;
   thumbnailUrl: string;

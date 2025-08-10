@@ -27,13 +27,11 @@ export const useVideoStore = defineStore('video', () => {
     }
   };
 
-  const getSuggestVideos = async (search?: string): Promise<ResponsePagination<Video>> => {
+  const getSuggestVideos = async (params?: VideosParams): Promise<ResponsePagination<Video>> => {
     try {
       return await $apiFetch<Video[]>("/videos/suggest", {
         method: "get",
-        params: {
-          q: search
-        }
+        params
       });
     } catch (err: unknown) {
       console.error("getNews error:", err);

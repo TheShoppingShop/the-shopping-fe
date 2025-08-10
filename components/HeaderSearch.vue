@@ -11,6 +11,12 @@ const useVideos = useVideoStore();
 const router = useRouter()
 const route = useRoute()
 
+interface Emits {
+  (e: 'close'): void
+}
+
+const emits = defineEmits<Emits>()
+
 const search = ref('')
 const suggestionsLoading = ref(false)
 const suggestions = ref<Video[]>([])
@@ -18,7 +24,7 @@ const suggestions = ref<Video[]>([])
 const getSuggestions = async () => {
   suggestionsLoading.value = true
   try {
-    const {data} = await useVideos.getSuggestVideos(search.value);
+    const {data} = await useVideos.getSuggestVideos({search: search.value});
     suggestions.value = data
   } catch (err) {
     console.error("getVideos error:", err);
@@ -57,7 +63,10 @@ const clearSuggestions = () => {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-black/50 z-[10000]" />
+  <div
+    class="fixed inset-0 bg-black/50 z-[10000]"
+    @click="emits('close')"
+  />
 
   <div class="fixed top-10 w-[90%] left-1/2 transform -translate-x-1/2 bg-background rounded-xl min-h-[80px] max-h-[500px] z-[100000]">
     <div

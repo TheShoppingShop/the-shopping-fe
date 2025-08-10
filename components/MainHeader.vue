@@ -160,5 +160,5 @@ const toResults = () => {
       </div>
     </div>
   </header>
-  <HeaderSearch v-if="openMobileSearch" />
+  <HeaderSearch v-if="openMobileSearch" @close="openMobileSearch = false" />
 </template>

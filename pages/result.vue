@@ -6,15 +6,21 @@ import VCard from "~/components/ui/card/VCard.vue";
 import VCardContent from "~/components/ui/card/VCardContent.vue";
 import {useVideoStore} from "~/store/useVideoStore";
 import {useRoute, useRouter} from "#vue-router";
+import {onMounted, onUnmounted, ref} from "vue";
+import type {VideosParams} from "~/types";
 
 const useVideos = useVideoStore()
 const route = useRoute()
 const router = useRouter()
 
 const testLoading = ref(false)
+const nextPageLoading = ref(false)
+const params = ref<VideosParams>({
+  page: 1,
+  limit: 10
+})
 
-const { data: searchedVideos, pending: loading } = await useAsyncData('resultVideos', () => useVideos.getSuggestVideos(route.query.v as string))
-
+const { data: searchedVideos, pending: loading } = await useAsyncData('resultVideos', () => useVideos.getSuggestVideos({...params.value, search: route.query.v as string}))
 
 watch(
   () => route.query.v,
@@ -29,12 +35,54 @@ const playVideo = (slug: string) => {
     query: {slug}
   })
 }
+
+const getVideos = async (nextPage?: boolean) => {
+  if(!searchedVideos.value?.data) return
+  if(!nextPage) nextPageLoading.value = true
+  try {
+    const data = await useVideos.getSuggestVideos(params.value);
+    if(nextPage) searchedVideos.value.data = [...searchedVideos.value.data, ...data.data]
+    else searchedVideos.value.data = data.data
+  } catch (err) {
+    console.error("getVideos error:", err);
+  } finally {
+    nextPageLoading.value = false
+  }
+}
+
+const nextVideo = async () => {
+  if(!searchedVideos.value?.data || !params.value?.page || params.value.page >= searchedVideos.value.totalPages) return
+  params.value.page++
+  nextPageLoading.value = true
+  await getVideos(true)
+  setTimeout(() => {
+    nextPageLoading.value = false
+  }, 2000)
+}
+
+
+
+const handleScroll = () => {
+  const nearBottom =
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000
+  if (nearBottom && !nextPageLoading.value) {
+    nextVideo()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
 <div>
   <MainHeader />
-  <div v-if="searchedVideos" class="space-y-6 container mx-auto mt-8">
+  <div v-if="searchedVideos?.data" class="space-y-6 container mx-auto mt-8 pb-10">
     <div class="flex items-center justify-between">
       <h2 class="text-2xl font-bold">Results</h2>
       <div class="text-sm text-muted-foreground">
@@ -76,13 +124,6 @@ const playVideo = (slug: string) => {
               </VButton>
             </div>
           </div>
-
-          <!-- Price badge -->
-          <!--          <div-->
-          <!--            class="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold"-->
-          <!--          >-->
-          <!--            {{ video.price }}-->
-          <!--          </div>-->
         </div>
 
         <!-- Card content -->
@@ -92,6 +133,9 @@ const playVideo = (slug: string) => {
           </h3>
         </VCardContent>
       </VCard>
+      <div v-if="nextPageLoading" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
     </div>
   </div>
 </div>
