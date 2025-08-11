@@ -29,7 +29,7 @@ onMounted(() => {
 })
 
 const handleProfileClick = () => {
-  router.push('/profile')
+  router.push('/liked')
 }
 
 const goHome = () => {
