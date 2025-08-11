@@ -2,7 +2,7 @@
 import {Search, X} from "lucide-vue-next";
 import Input from "~/components/ui/VInput.vue";
 import {ref} from "vue";
-import {debounce} from "lodash";
+import {debounce} from "lodash/debounce";
 import type {Video} from "~/types";
 import {useVideoStore} from "~/store/useVideoStore";
 import {useRoute, useRouter} from "#vue-router";

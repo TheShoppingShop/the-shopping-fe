@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import {Search, Heart, X} from 'lucide-vue-next'
 import VButton from '@/components/ui/VButton.vue'
 import Input from '@/components/ui/VInput.vue'
-import {debounce} from "lodash";
+import {debounce} from "lodash/debounce";
 import {ref} from 'vue'
 import type {Video} from "~/types";
 import {useVideoStore} from "~/store/useVideoStore";
