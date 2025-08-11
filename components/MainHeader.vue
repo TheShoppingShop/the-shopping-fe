@@ -14,6 +14,7 @@ const useVideos = useVideoStore();
 const route = useRoute()
 const router = useRouter()
 
+
 const search = ref('')
 
 const suggestionsLoading = ref(false)
