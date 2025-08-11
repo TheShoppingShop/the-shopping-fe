@@ -1,5 +1,4 @@
 import { ref, onMounted } from 'vue'
-import { useToast } from 'vue-toastification'
 
 
 export const STORAGE_KEY = 'liked_video_ids'
@@ -7,7 +6,7 @@ export const STORAGE_KEY = 'liked_video_ids'
 const likedIds = ref<number[] | null>(null)
 
 export function useLikedVideos() {
-  const toast = useToast()
+  const { $toast } = useNuxtApp()
 
   // LocalStorage'dan boshlang‘ich qiymatni yuklash
   const loadFromStorage = () => {
@@ -35,7 +34,7 @@ export function useLikedVideos() {
   const toggleLike = (id: number) => {
     if (!likedIds.value) return
     if (!localStorage.getItem('liked_video_warning_shown')) {
-      toast.warning(
+      $toast.warning(
         'Your likes are temporarily stored in your browser and will be lost when you close it. Please log in to save them permanently.',
         {timeout: 5000}
       )
