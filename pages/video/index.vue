@@ -76,7 +76,7 @@ useSeoMeta({
   // Keywords
   keywords: computed(() =>
     currentVideo.value?.metaKeywords?.length
-      ? currentVideo.value.metaKeywords.join(', ')
+      ? currentVideo.value.tags.join(', ')
       : 'amazon trending products, video reviews, online shopping USA, amazon finds'
   ),
 
