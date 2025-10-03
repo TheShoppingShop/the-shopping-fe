@@ -226,6 +226,15 @@ onMounted(() => {
 onUnmounted(() => {
   if (hls.value) hls.value.destroy()
 })
+
+const toggleLike = async (id: number) => {
+  if(videoLike.isLiked(id)) {
+    await useVideos.unlikeVideo(id)
+  } else {
+    await useVideos.likeVideo(id)
+  }
+  videoLike.toggleLike(id)
+}
 </script>
 
 <template>
@@ -277,7 +286,7 @@ onUnmounted(() => {
               <div class="flex items-center space-x-4">
                 <button
                   class="flex items-center space-x-1 hover:scale-110 transition-transform"
-                  @click="videoLike.toggleLike(videos[currentIndex].id)"
+                  @click="toggleLike(videos[currentIndex].id)"
                 >
                   <Heart :class="['w-5 h-5', videoLike.isLiked(videos[currentIndex].id) ? 'fill-red-500 text-red-500' : '']" />
                   <span>{{ videos[currentIndex].likes }}</span>
@@ -330,7 +339,7 @@ onUnmounted(() => {
               @click="openAmazonLink(videos[currentIndex].amazonLink)"
             >
               <ShoppingCart class="w-5 h-5 mr-2" />
-              Buy Now on Amazon
+              Buy It Now
             </VButton>
             <p class="text-xs text-muted-foreground text-center">
               * This is an affiliate link. We may earn a commission at no extra cost to you.
