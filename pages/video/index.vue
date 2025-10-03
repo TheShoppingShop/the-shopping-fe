@@ -230,8 +230,10 @@ onUnmounted(() => {
 const toggleLike = async (id: number) => {
   if(videoLike.isLiked(id)) {
     await useVideos.unlikeVideo(id)
+    if(videos.value[currentIndex.value]) videos.value[currentIndex.value].likes--
   } else {
     await useVideos.likeVideo(id)
+    if(videos.value[currentIndex.value]) videos.value[currentIndex.value].likes++
   }
   videoLike.toggleLike(id)
 }
