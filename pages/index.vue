@@ -63,7 +63,7 @@ const nextVideo = async () => {
   if(!videos.value || !params.value?.page || params.value.page >= videos.value.totalPages) return
   params.value.page++
   filterLoading.value = true
-  await getVideos()
+  await getVideos(true)
   setTimeout(() => {
     filterLoading.value = false
   }, 2000)
