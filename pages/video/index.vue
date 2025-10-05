@@ -11,7 +11,7 @@ import {
   ShoppingCart,
   Volume2,
   VolumeX,
-  Pause
+  Play
 } from 'lucide-vue-next'
 
 import VButton from '@/components/ui/VButton.vue'
@@ -118,18 +118,18 @@ const initPlayer = (url: string) => {
     hls.value.loadSource(url)
     hls.value.attachMedia(video)
     hls.value.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.muted = true
+      video.muted = isMuted.value
       video.play().catch(console.error)
       isPlaying.value = true
     })
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = url
-    video.muted = true
+    video.muted = isMuted.value
     video.play().catch(console.error)
     isPlaying.value = true
   } else {
     video.src = url
-    video.muted = true
+    video.muted = isMuted.value
     video.play().catch(console.error)
     isPlaying.value = true
   }
@@ -268,9 +268,9 @@ const toggleLike = async (id: number) => {
             preload="metadata"
             @click="togglePlay"
           />
-          <div v-if="!isPlaying" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div v-if="isPlaying" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="bg-black/50 rounded-full p-4">
-              <Pause class="w-12 h-12 text-white fill-white" />
+              <Play class="w-12 h-12 text-white fill-white" />
             </div>
           </div>
           <VButton
