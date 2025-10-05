@@ -206,7 +206,7 @@ const shareVideo = async () => {
 }
 
 watch(() => route.query.slug, () => {
-  if (videos.value && videos.value.length) {
+  if (videos.value && videos.value.length && videos.value[currentIndex.value]?.videoUrl) {
     const index = videos.value.findIndex((v: Video) => v.slug === route.query.slug)
     currentIndex.value = index >= 0 ? index : 0
     initPlayer(videos.value[currentIndex.value].videoUrl)
@@ -215,7 +215,7 @@ watch(() => route.query.slug, () => {
 })
 
 onMounted(() => {
-  if (videos.value && videos.value.length) {
+  if (videos.value && videos.value.length && videos.value[currentIndex.value]?.videoUrl) {
     const index = videos.value.findIndex((v: Video) => v.slug === route.query.slug)
     currentIndex.value = index >= 0 ? index : 0
     initPlayer(videos.value[currentIndex.value].videoUrl)
