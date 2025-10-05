@@ -268,7 +268,7 @@ const toggleLike = async (id: number) => {
             preload="metadata"
             @click="togglePlay"
           />
-          <div v-if="isPlaying" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div v-if="!isPlaying" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="bg-black/50 rounded-full p-4">
               <Play class="w-12 h-12 text-white fill-white" />
             </div>
