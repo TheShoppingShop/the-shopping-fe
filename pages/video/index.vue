@@ -253,7 +253,7 @@ const toggleLike = async (id: number) => {
           variant="ghost"
           size="sm"
           class="absolute top-4 font-bold left-4 z-10 text-white bg-white/20"
-          @click="router.go(-1)"
+          @click="router.push('/')"
         >
           <ArrowLeft class="w-5 h-5" />
         </VButton>
